@@ -21,6 +21,8 @@ model User {
   password      String
   phone         String?
   organisations Organisation[]
+
+  @@map("user")
 }
 
 model Organisation {
@@ -28,4 +30,6 @@ model Organisation {
   name        String
   description String?
   users       User[]
+
+  @@map("organisation")
 }
