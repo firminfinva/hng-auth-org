@@ -1,0 +1,15 @@
+# dependencies
+/node_modules
+node_modules/
+
+# local env files
+.env
+.env.*
+Dockerfile/
+Dockerfile
+/Dockerfile
+# https://swagger.io/solutions/api-documentation/
+
+
+
+.vercel
