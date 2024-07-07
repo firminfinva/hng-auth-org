@@ -3,13 +3,35 @@ import bcrypt from "bcrypt";
 
 export async function createuser(req, res) {
   try {
+    const { firstName, lastName, email, password } = req.body;
+    const errors = [];
+
+    if (!firstName) {
+      errors.push({ field: "firstName", message: "First name is required" });
+    }
+
+    if (!lastName) {
+      errors.push({ field: "lastName", message: "Last name is required" });
+    }
+
+    if (!email) {
+      errors.push({ field: "email", message: "Email is required" });
+    }
+
+    if (!password) {
+      errors.push({ field: "password", message: "Password is required" });
+    }
+
+    if (errors.length > 0) {
+      return res.status(422).json({ errors });
+    }
     const userwithemail = await prisma.user.findUnique({
       where: {
         email: req.body.email,
       },
     });
     if (userwithemail) {
-      res.status(400).json({ message: "Email already exists" });
+      return res.status(422).json({ message: "Email already exists" });
     }
 
     const organisation = await prisma.organisation.create({
@@ -18,7 +40,6 @@ export async function createuser(req, res) {
       },
     });
 
-    const { password } = req.body;
     const cryptPassword = await bcrypt.hash(password, 10);
     req.body.password = cryptPassword;
     const newuser = await prisma.user.create({
@@ -35,12 +56,8 @@ export async function createuser(req, res) {
         },
       },
     });
-    // const newOrganisation = await prisma.organisation.create({
-    //   data: {
-    //     name: newuser.firstName + "'s organiation ",
-    //   },
-    // });
-    res.status(200).json({
+
+    return res.status(200).json({
       status: "success",
       message: "Registration successful",
       data: {
@@ -55,7 +72,7 @@ export async function createuser(req, res) {
       },
     });
   } catch (error) {
-    res.status(401).json({
+    return res.status(400).json({
       status: "Bad request",
       message: "Registration unsuccessful",
       statusCode: 400,

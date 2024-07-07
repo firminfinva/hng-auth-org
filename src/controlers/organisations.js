@@ -1,4 +1,5 @@
 import prisma from "./../dbconnexion.js";
+import { checkUserAccessOrganisation } from "./auth/checkUserAccess.organisation.js";
 
 export async function CreateOrganisation(req, res) {
   try {
@@ -22,12 +23,15 @@ export async function CreateOrganisation(req, res) {
 export async function GetAllOrganisations(req, res) {
   try {
     let allOrganisations = await prisma.organisation.findMany({
-      select: {
-        orgId: true,
-        name: true,
-        description: true,
+      where: {
+        users: {
+          some: {
+            userId: req.user.userId,
+          },
+        },
       },
     });
+
     res.status(200).json({
       status: "success",
       message: "<message>",
@@ -50,13 +54,29 @@ export async function GetOrganisation(req, res) {
       where: {
         orgId: req.params.orgId,
       },
+      include: {
+        users: true,
+      },
     });
 
-    res.status(200).json({
-      status: "success",
-      message: "<message>",
-      data: organiation,
-    });
+    const checked = checkUserAccessOrganisation(
+      organiation.users,
+      req.user.userId
+    );
+
+    if (checked) {
+      res.status(200).json({
+        status: "success",
+        message: "<message>",
+        data: {
+          orgId: organiation.orgId,
+          name: organiation.name,
+          description: organiation.description,
+        },
+      });
+    } else {
+      res.status(400).json("You are not authaurized");
+    }
   } catch (error) {
     res.json({ error: error.stack });
   }

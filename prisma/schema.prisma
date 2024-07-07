@@ -33,13 +33,3 @@ model Organisation {
 
   @@map("organisation")
 }
-
-// model UserOrganisation {
-//   userId       String
-//   orgId        String
-//   user         User         @relation(fields: [userId], references: [userId])
-//   organisation Organisation @relation(fields: [orgId], references: [orgId])
-
-//   @@id([userId, orgId])
-//   @@map("user_organisation")
-// }

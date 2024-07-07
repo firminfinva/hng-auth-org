@@ -6,7 +6,7 @@ dotenv.config();
 
 const port = process.env.PORT;
 
-const server = express();
+export const server = express();
 
 server.use(express.json());
 

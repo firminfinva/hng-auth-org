@@ -1,6 +1,7 @@
 import prisma from "../../dbconnexion.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { generateToken } from "../../tokenUtils.js";
 
 export async function Login(req, res) {
   try {
@@ -18,16 +19,7 @@ export async function Login(req, res) {
     const isAuth = await bcrypt.compare(password, theuser.password);
 
     if (isAuth) {
-      const token = jwt.sign(
-        {
-          name: theuser.firstName + "" + theuser.secondName,
-          email: theuser.email,
-        },
-        "JSON_WEB_TOKEN",
-        {
-          expiresIn: "72h",
-        }
-      );
+      const token = generateToken(theuser);
       res.json({
         status: "success",
         message: "Login successful",
