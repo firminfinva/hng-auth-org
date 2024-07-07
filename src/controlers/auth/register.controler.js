@@ -11,17 +11,35 @@ export async function createuser(req, res) {
     if (userwithemail) {
       res.status(400).json({ message: "Email already exists" });
     }
+
+    const organisation = await prisma.organisation.create({
+      data: {
+        name: req.body.firstName + "'s organiation ",
+      },
+    });
+
     const { password } = req.body;
     const cryptPassword = await bcrypt.hash(password, 10);
     req.body.password = cryptPassword;
     const newuser = await prisma.user.create({
-      data: req.body,
-    });
-    const newOrganisation = await prisma.organisation.create({
       data: {
-        name: newuser.firstName + "'s organiation ",
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        phone: req.body.phone,
+        password: req.body.password,
+        organisations: {
+          connect: {
+            orgId: organisation.orgId,
+          },
+        },
       },
     });
+    // const newOrganisation = await prisma.organisation.create({
+    //   data: {
+    //     name: newuser.firstName + "'s organiation ",
+    //   },
+    // });
     res.status(200).json({
       status: "success",
       message: "Registration successful",
