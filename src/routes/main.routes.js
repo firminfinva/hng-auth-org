@@ -5,7 +5,7 @@ import { GetUser } from "../controlers/users.js";
 import { organisationsRouter } from "./organisations.Routes.js";
 import verifyToken from "../controlers/auth/verifyToken.js";
 
-export const mainRouter = Router();
+const mainRouter = Router();
 
 mainRouter.post("/auth/register", createuser);
 mainRouter.post("/auth/login", Login);
@@ -14,3 +14,5 @@ mainRouter.use("/api/organisations", verifyToken, organisationsRouter);
 mainRouter.use("/", (req, res) => {
   res.json("We are live");
 });
+
+export default mainRouter;
