@@ -28,7 +28,7 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^5.16.1",
-    "vercel": "^34.3.0"
+    "vercel": "^32.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.7",
