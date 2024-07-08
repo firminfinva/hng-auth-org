@@ -1,3 +1,4 @@
+import { generateToken } from "../../tokenUtils.js";
 import prisma from "./../../dbconnexion.js";
 import bcrypt from "bcrypt";
 
@@ -25,30 +26,30 @@ export async function createuser(req, res) {
     if (errors.length > 0) {
       return res.status(422).json({ errors });
     }
+
     const userwithemail = await prisma.user.findUnique({
       where: {
-        email: req.body.email,
+        email: email,
       },
     });
+
     if (userwithemail) {
       return res.status(422).json({ message: "Email already exists" });
     }
 
     const organisation = await prisma.organisation.create({
       data: {
-        name: req.body.firstName + "'s organiation ",
+        name: `${firstName}'s organisation`,
       },
     });
 
     const cryptPassword = await bcrypt.hash(password, 10);
-    req.body.password = cryptPassword;
     const newuser = await prisma.user.create({
       data: {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        phone: req.body.phone,
-        password: req.body.password,
+        firstName,
+        lastName,
+        email,
+        password: cryptPassword,
         organisations: {
           connect: {
             orgId: organisation.orgId,
@@ -57,17 +58,17 @@ export async function createuser(req, res) {
       },
     });
 
-    return res.status(200).json({
+    const token = generateToken(newuser);
+    return res.status(201).json({
       status: "success",
       message: "Registration successful",
       data: {
-        accessToken: "eyJh...",
+        accessToken: token,
         user: {
           userId: newuser.userId,
           firstName: newuser.firstName,
           lastName: newuser.lastName,
           email: newuser.email,
-          phone: newuser.phone,
         },
       },
     });
