@@ -1,6 +1,4 @@
-const {
-  checkUserAccessOrganisation,
-} = require("./../src/controlers/auth/checkUserAccess.organisation.js");
+import { checkUserAccessOrganisation } from "./../src/controlers/auth/checkUserAccess.organisation.js";
 
 describe("Organisation Access", () => {
   it("should allow access to users who belong to the organisation", () => {

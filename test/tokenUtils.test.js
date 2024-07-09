@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import verifyToken from "./../src/controlers/auth/verifyToken";
 
 // Mock the environment variable for JSON_WEB_TOKEN
-process.env.JSON_WEB_TOKEN = "mocked-secret";
+process.env.JSON_WEB_TOKEN = process.env.JSON_WEB_TOKEN;
 
 // Mock Express request and response objects
 const mockRequest = (token) => ({

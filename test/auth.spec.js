@@ -1,17 +1,25 @@
-const request = require("supertest");
-const { server } = require("./../src/index.js");
+import request from "supertest";
+import { server } from "./../src/index.js";
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+beforeAll(async () => {
+  await prisma.user.deleteMany();
+  await prisma.organisation.deleteMany();
+});
+
+afterAll(async () => {
+  await prisma.$disconnect();
+});
 
 describe("POST /auth/register", () => {
   it("should register user successfully with default organisation", async () => {
     const res = await request(server).post("/auth/register").send({
-      firstName: "John1",
-      lastName: "Doe1",
-      email: "john.doe1@example.com",
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@example.com",
       password: "password123",
     });
-
-    // console.log("Response Status:", res);
-    console.log("Response Body:", res.body);
 
     expect(res.statusCode).toEqual(201); // Expecting 201 for success
     expect(res.body).toHaveProperty("status", "success");
@@ -19,9 +27,9 @@ describe("POST /auth/register", () => {
     expect(res.body).toHaveProperty("data");
     expect(res.body.data).toHaveProperty("accessToken");
     expect(res.body.data).toHaveProperty("user");
-    expect(res.body.data.user).toHaveProperty("firstName", "John1");
-    expect(res.body.data.user).toHaveProperty("lastName", "Doe1");
-    expect(res.body.data.user).toHaveProperty("email", "john.doe1@example.com");
+    expect(res.body.data.user).toHaveProperty("firstName", "John");
+    expect(res.body.data.user).toHaveProperty("lastName", "Doe");
+    expect(res.body.data.user).toHaveProperty("email", "john.doe@example.com");
   });
 
   it("should log the user in successfully", async () => {
