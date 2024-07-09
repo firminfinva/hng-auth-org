@@ -11,15 +11,19 @@ beforeAll(async () => {
 afterAll(async () => {
   await prisma.$disconnect();
 });
+const theuser = {
+  firstName: "John",
+  lastName: "Doe",
+  email: "john.doe@example.com",
+  password: "password123",
+};
+
+let userId = [];
+let globalaccessToken = "";
 
 describe("POST /auth/register", () => {
   it("should register user successfully with default organisation", async () => {
-    const res = await request(server).post("/auth/register").send({
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      password: "password123",
-    });
+    const res = await request(server).post("/auth/register").send(theuser);
 
     expect(res.statusCode).toEqual(201); // Expecting 201 for success
     expect(res.body).toHaveProperty("status", "success");
@@ -27,9 +31,34 @@ describe("POST /auth/register", () => {
     expect(res.body).toHaveProperty("data");
     expect(res.body.data).toHaveProperty("accessToken");
     expect(res.body.data).toHaveProperty("user");
-    expect(res.body.data.user).toHaveProperty("firstName", "John");
-    expect(res.body.data.user).toHaveProperty("lastName", "Doe");
-    expect(res.body.data.user).toHaveProperty("email", "john.doe@example.com");
+    expect(res.body.data.user).toHaveProperty("firstName", theuser.firstName);
+    expect(res.body.data.user).toHaveProperty("lastName", theuser.lastName);
+    expect(res.body.data.user).toHaveProperty("email", theuser.email);
+
+    const userInDb = await prisma.user.findUnique({
+      where: { email: theuser.email },
+    });
+    globalaccessToken = res.body.data.accessToken;
+
+    // console.log("userInDb", userInDb);
+    // expect(userInDb).not.toBeNull();
+    // expect(userInDb.organisation).not.toBeNull();
+    // expect(userInDb.organisation.name).toBe(
+    //   `${userData.firstName}'s Organisation`
+    // );
+    // console.log("user org", userInDb.organisation);
+  });
+
+  it("Default Organisation", async () => {
+    const res = await request(server)
+      .get("/api/organisations")
+      .set("Authorization", `Bearer ${globalaccessToken}`);
+    console.log("res", res.body.data);
+    const organisationName = res.body.data.organisations.some(
+      (name) => name.name === `${theuser.firstName}'s organisation`
+    );
+    expect(res.status).toEqual(200);
+    expect(organisationName).toBe(true);
   });
 
   it("should log the user in successfully", async () => {
